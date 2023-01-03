@@ -2,7 +2,7 @@ import os
 from xml.etree.ElementTree import Element, SubElement, tostring
 from images import isImage, countImagesIn
 from datetime import datetime, timezone
-from shutil import move
+from shutil import copy
 
 
 class Card:
@@ -27,10 +27,9 @@ class Card:
                     if "@" in item and isImage(item):
                         tensei_faces_filtered.append(item)
                         path = os.path.join(image_path, item)
-                        print(path, images_directory)
-                        move(path, images_directory)
+                        copy(path, images_directory)
 
-                os.rmdir(image_path)
+                # os.rmdir(image_path)
                 tensei_faces_filtered.sort()
                 self.filename = tensei_faces_filtered
                 self.tensei = True

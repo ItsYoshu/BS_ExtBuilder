@@ -34,7 +34,7 @@ def main():
     source_directory = "/"
     images_url = "/"
     set_name = ""
-    dir_url = ""
+    project_dir_url = ""
 
     if op_select == "1":
         ############################
@@ -47,13 +47,13 @@ def main():
 
         set_name = os.path.basename(source_directory)
 
-        dir_url = projects_dir / set_name
+        project_dir_url = projects_dir / set_name
         try:
-            dir_url.mkdir(parents=True)
+            project_dir_url.mkdir(parents=True)
         except FileExistsError:
             pass
 
-        images_url = dir_url / "images"
+        images_url = project_dir_url / "images"
         try:
             images_url.mkdir(parents=True)
         except FileExistsError:
@@ -70,9 +70,10 @@ def main():
     ############################
     cards_objlist = []
     for item in os.listdir(images_url):
-        print(os.path.join(images_url, item))
-        card = Card(os.path.join(images_url, item), projects_dir)
-        cards_objlist.append(card)
+        if "@" not in item:
+            if debug_mode: print(os.path.join(images_url, item))
+            card = Card(os.path.join(images_url, item), project_dir_url)
+            cards_objlist.append(card)
 
     widget = Widgets(set_name=set_name)
     xml_build = widget.build(cards_objlist)
@@ -80,7 +81,7 @@ def main():
     ############################
     # Build buildFile.xml
     ############################
-    buildfile_path = os.path.join(dir_url, "buildFile.xml")
+    buildfile_path = os.path.join(project_dir_url, "buildFile.xml")
     xmlstr = minidom.parseString(xml_build).toprettyxml(indent="   ")
     xmlstr = xmlstr.replace('<?xml version="1.0" ?>', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>')
     with open(buildfile_path, "w") as f:
@@ -90,7 +91,7 @@ def main():
     # Build extensiondata
     ############################
     extension_xml = widget.build_extensiondata()
-    extensiondata_path = os.path.join(dir_url, "extensiondata")
+    extensiondata_path = os.path.join(project_dir_url, "extensiondata")
     xmlstr = minidom.parseString(extension_xml).toprettyxml(indent="   ")
     xmlstr = xmlstr.replace('<?xml version="1.0" ?>', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>')
     with open(extensiondata_path, "w") as f:
@@ -100,7 +101,7 @@ def main():
     # Build moduledata
     ############################
     module_xml = widget.build_moduledata()
-    moduledata_path = os.path.join(dir_url, "moduledata")
+    moduledata_path = os.path.join(project_dir_url, "moduledata")
     xmlstr = minidom.parseString(module_xml).toprettyxml(indent="   ")
     xmlstr = xmlstr.replace('<?xml version="1.0" ?>', '<?xml version="1.0" encoding="UTF-8" standalone="no"?>')
     with open(moduledata_path, "w") as f:
@@ -108,10 +109,10 @@ def main():
 
     save_directory = askDirectoryGUI(debug=debug_mode, message="Please select your Vassal Extension Folder")
     if save_directory is None: raise KeyboardInterrupt()
-    zip_directory(name=set_name, path=dir_url, savepath=save_directory)
+    zip_directory(name=set_name, path=project_dir_url, savepath=save_directory)
 
     exit()
-    rmtree(dir_url)
+    rmtree(project_dir_url)
 
 
 if __name__ == "__main__":
